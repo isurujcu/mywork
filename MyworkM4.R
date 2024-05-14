@@ -1,0 +1,5 @@
+install.packages("usethis")
+library(usethis)
+use_git_config(user.name = "isurujcu", user.email = "isuruwmic@gmail.com")
+gitcreds::gitcreds_set()
+usethis ::use_github()
