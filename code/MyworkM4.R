@@ -21,7 +21,7 @@ usethis ::use_github()
 
 
 #----------------------------------------------------#
-## Section 1: Basics of data visualization in R using an inbuilt dataset in R
+## Section 1: Basics of data visualization in R using an inbuilt dataset in R ####
 
 
 # Description: 
@@ -37,7 +37,7 @@ library("tidyverse")
 
 
 #----------------------------------------------------#
-## Section 1.1: Creating a simple plot using mpg data frame in R. 
+## Section 1.1: Creating a simple plot using mpg data frame in R ####
 
 # the data frame that we use to build the basic map
 ?mpg #for further information about this data frame
@@ -61,7 +61,7 @@ ggplot(data = mpg) +
 
 
 #----------------------------------------------------#
-## Section 1.2: Changing the aesthetics of the plot 
+## Section 1.2: Changing the aesthetics of the plot ####
 
 # Although the ggplot created the plot, it is not so clear which car types has 
 # the highest fuel efficiency compared to others. 
@@ -104,7 +104,7 @@ ggplot(data = mpg) +
 
 
 #----------------------------------------------------#
-## Section 1.3: Facet and panel plots
+## Section 1.3: Facet and panel plots ####
 
 ## facet_wrap
 # The facet_wrap function in ggplot2 is used to split a single plot into 
@@ -142,7 +142,7 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy)) + 
   facet_grid(cyl ~ .)
 
-# Exercise:
+## Exercise:
 ?facet_wrap
 
 # What does nrow do? What does ncol do? 
@@ -155,7 +155,7 @@ ggplot(data = mpg) +
 
 
 #----------------------------------------------------#
-## Section 1.4: Fitting simple lines 
+## Section 1.4: Fitting simple lines ####
 
 # ggplot2 can use a variety of geom objects to represent the data. Here, 
 # we might want to use bar plots, line charts, boxplots and so on. 
@@ -167,9 +167,139 @@ ggplot(data = mpg) +
 ggplot(data = mpg) + 
   geom_smooth(mapping = aes(x = displ, y = hwy))
 
-# Question: whey don't we use geom_line() here? What would that look like?
+## Question: whey don't we use geom_line() here? What would that look like? 
+
 # Answer: The geom_smooth() function is used to add a smooth line 
 # (usually a regression line) that fits through the data points, representing 
 # the trend in the data. It provides a statistical summary of the relationship 
 # between the variables, often including confidence intervals.
+
+# Using geom_line() in this context would simply connect the points with 
+# straight lines in the order they appear in the data set, which might not make 
+# sense if the data is not ordered meaningfully. 
+
+
+## Use of comments 
+
+# We are always trying out different geom types that could be useful for 
+# visualization of our data. 
+# We can use comments to remember which geom type worked for the data set and 
+# which are not. An example would be in this case, 
+
+# ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) # points horrible 
+# ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy)) # try smooth line
+  
+  
+## Changing line type
+
+  ggplot(data = mpg) + 
+    geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv))
+
+## Grouping
+# So far we’ve only made fairly simple plots. But what happens if you want to 
+# group objects by a categorical variable (like species or sex or site)? 
+# Here we will use the group argument to show that our data is in fact grouped. 
+# It won’t add a new legend but can easily be used to vary your plots by the 
+# discrete variable.
+# Set the group aesthetic to a categorical variable to draw multiple objects.
+  
+ggplot(data = mpg) +
+    geom_smooth(mapping = aes(x = displ, y = hwy, group = drv))
+  
+
+## Change line colour based on drv value
+  
+  ggplot(data = mpg) +
+    geom_smooth(
+      mapping = aes(x = displ, y = hwy, color = drv),
+      show.legend = FALSE,
+    )  
+
+## Multiple geoms
+  
+# Now, let’s increase our complexity even more. Here we will plot multiple 
+# geoms on the single plot. All you need to do is to add them together. 
+# This one is nice for showing the underlying data and how it relates to the 
+# geom_smooth line.
+  
+ggplot(data = mpg) + 
+    geom_point(mapping = aes(x = displ, y = hwy)) +
+    geom_smooth(mapping = aes(x = displ, y = hwy))
+
+# A better way to plot the same graph
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()  
+
+# manipulating each geom layer separately
+# the above line graph with multiple geoms (points and line) does not make much 
+# sense as its giving the overall summary of the data 
+# (fuel efficiency vs. engine capacity). If we want to add more details to it, 
+# we need to manipulate each geom layer separately to visualize the variations 
+# between car types. 
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth()
+# this is a better visualization of the same dataset with multiple geoms. 
+# now the plot is neat. 
+
+# If you want to specify different data for each layer, we use a filter 
+# (class = "subcompact") to select a subset of data and plot only that subset. 
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
+
+## Question: what does the "se = FALSE" do?
+## Answer: In the geom_smooth() function, the se parameter stands for 
+# "standard error." By default, geom_smooth() includes a shaded region around  
+# the smooth line, representing the confidence interval for the fitted values. 
+# This shaded region shows the uncertainty around the smooth line, typically at 
+# a 95% confidence level. Setting se = FALSE removes this shaded confidence 
+# interval from the plot.
+
+## Exercise:
+# 1.  What geom would you use to draw line chart? boxplot? histogram? areachart?
+# 2.  Run this code in your head and predict what the output will look like. 
+# Then, run the code in R and check your predictions.
+
+## Answer: 
+# Line chart: Prediction = Will show a line connecting hwy values based on displ.
+# If there are multiple hwy values for the same displ, the line might look 
+# jagged or unclear".
+ggplot(data = mpg) + 
+  geom_line(mapping = aes(x = displ, y = hwy))  
+
+# Boxplot: Prediction = Will show the distribution of hwy for each class with 
+# boxes representing the interquartile range and whiskers indicating the range 
+# of the data, with potential outliers.
+ggplot(data = mpg) + 
+  geom_boxplot(mapping = aes(x = factor(class), y = hwy)) # boxplot
+
+# Histogram: Prediction = Will show the distribution of displ values with bars 
+# representing the frequency of observations within each bin. binwidth can be 
+# adjusted to change the granularity.
+ggplot(data = mpg) + 
+  geom_histogram(mapping = aes(x = displ), binwidth = 0.5) 
+
+# Area chart: Prediction = Will fill the area under the curve defined by displ 
+# and hwy, which might not be very informative if the data points are not 
+# sequentially ordered or if displ has multiple hwy values.
+ggplot(data = mpg) + 
+  geom_area(mapping = aes(x = displ, y = hwy)) 
+
+# 3.  Will these two graphs look different? Why/why not?
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth()
+
+ggplot() + 
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+
+# Answer: two graphs will look identical because both use the same data, 
+# mappings, and layers resulting in a scatter plot with a smoothed line overlay.
 
