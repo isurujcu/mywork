@@ -4,32 +4,172 @@ use_git_config(user.name = "isurujcu", user.email = "isuruwmic@gmail.com")
 gitcreds::gitcreds_set()
 usethis ::use_github()
 
-install.packages("tidyverse")
-library(tidyverse)
+#----------------------------------------------------#
+# MB5370: Module 4 - Data Science in R ####
+# Date: 14/05/2024 - 17/05/2024
+# Author: Isuru Wijesundara (14384313)
+#
+# Script Location:
+# C:/Users/isuru/Desktop/Isuru/0_JCU/Semester_3/MB5370/Module 4_Data science in R/My_analysis_M4/mywork/code/MyworkM4.R
+# Description: 
+# This script demonstrates data visualization and end to end data analysis in R.
+#----------------------------------------------------#
 
-mpg
+
+#----------------------------------------------------#
+# Workshop 2: Data visulization in R ####
+
+
+#----------------------------------------------------#
+## Section 1: Basics of data visualization in R using an inbuilt dataset in R
+
+
+# Description: 
+# This section encompasses the basics of data visualization in R using an 
+# inbuilt data set provided by R. Using this data set, plots will be constructed 
+# and try out several ways for data visulization to obtain meaningful plots. 
+
+# Install and load tidyverse packages ####
+# First we need to install the relevant packages into the R work space. 
+
+install.packages("tidyverse") # Delete this line once installed
+library("tidyverse")
+
+
+#----------------------------------------------------#
+## Section 1.1: Creating a simple plot using mpg data frame in R. 
+
+# the data frame that we use to build the basic map
+?mpg #for further information about this data frame
+
+# The mpg data frame found in ggplot2 is a dataset with observations 
+# (234 rows of data) and variables
+# Variables include displ: engine capacity of cars, hwy: fuel consumption
+data(mpg)
+
+# checking the structure of the data frame
+head(mpg)
+glimpse(mpg)
+summary(mpg)
+
+# creating the first plot using the mpg data frame
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy))
-ggplot()
-ggplot(data = mpg)
+# this plot shows the variation in the fuel consumption (hwy) of the cars with 
+# the engine capacity (displ). Simply it shows a negative relationship between 
+# hwy and displ.  
+
+
+#----------------------------------------------------#
+## Section 1.2: Changing the aesthetics of the plot 
+
+# Although the ggplot created the plot, it is not so clear which car types has 
+# the highest fuel efficiency compared to others. 
+# Therefore, we want to further construct this plot to get more 
+# meaningful understanding of data. 
+
+# to answer the question which cars types has highest efficiency compared to 
+# others, we need to add two attributes, the geom and aesthetics. 
+
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy, colour = class))
+#this plot is more informative compared to the first plot created.
+
+## Change point colour by class:
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy, colour = class))
+
+## Change point size by class:
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy, size = class))
+# here a warning message pops as "Using size for a discrete variable is not 
+# advised". Here, class is a discrete variable (e.g., car types).
+# ggplot2 warns because the variation in point size might not effectively convey 
+# the differences between categories, and it might make the plot harder to read. 
+  
+## Change transparency (alpha) by class
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+# Warning: Using alpha for a discrete variable is not advised.The warnings occur 
+# because using alpha or size for discrete variables can be misleading or 
+# less effective
+
+# Change point shape by class:
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+
+# Make all points blue
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+
+
+#----------------------------------------------------#
+## Section 1.3: Facet and panel plots
+
+## facet_wrap
+# The facet_wrap function in ggplot2 is used to split a single plot into 
+# multiple smaller plots, each displaying a subset of the data.
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy)) + 
   facet_wrap(~ class, nrow = 2)
+
+# Main Plot: The base plot is a scatter plot with displ (engine capacity) on the 
+# x-axis and hwy (fuel efficiency) on the y-axis.
+# Faceting by Class: facet_wrap(~ class) splits the plot by the class variable 
+# (car type). 
+# Each subset of data corresponding to a different car type is displayed in 
+# its own small plot.
+# Number of Rows: nrow = 2 specifies that the small plots arranged in 2 rows.
+
+## facet_grid
+# The facet_grid function in ggplot2 creates a grid of plots, where each plot 
+# represents a subset of the data based on the combinations of two categorical 
+# variables.
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy)) + 
   facet_grid(drv ~ cyl)
+
+# Main Plot: The base plot is a scatter plot with displ (engine capacity) 
+# on the x-axis and hwy (fuel efficiency) on the y-axis.
+# Faceting by drv and cyl: facet_grid(drv ~ cyl) creates a grid of plots. 
+# Each plot corresponds to a unique combination of drv 
+# (drive type, e.g., 4WD) and cyl (number of cylinders).
+# Rows represent different levels of the drv variable.
+# Columns represent different levels of the cyl variable.
+
+## facet_grid by just row (or column)
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy)) + 
   facet_grid(cyl ~ .)
+
+# Exercise:
+?facet_wrap
+
+# What does nrow do? What does ncol do? 
+# What other options control the layout of the individual panels?
+
+# Answer: The nrow and ncol parameters in facet_wrap control the number of rows 
+# and columns of the faceted plots, while other options like scales, 
+# strip.position, as.table, drop, and dir control the scales, label positions, 
+# layout order, inclusion of unused levels, and wrapping direction of panels.
+
+
+#----------------------------------------------------#
+## Section 1.4: Fitting simple lines 
+
+# ggplot2 can use a variety of geom objects to represent the data. Here, 
+# we might want to use bar plots, line charts, boxplots and so on. 
+# Well we can handle this issue in ggplot directly using a different geom to 
+# plot the same data. Here, instead of points, we will use a smooth line. 
+
+
+# To display same data as a smooth line fit through points use geom_smooth().
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+
+# Question: whey don't we use geom_line() here? What would that look like?
+# Answer: The geom_smooth() function is used to add a smooth line 
+# (usually a regression line) that fits through the data points, representing 
+# the trend in the data. It provides a statistical summary of the relationship 
+# between the variables, often including confidence intervals.
+
