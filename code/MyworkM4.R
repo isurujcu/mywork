@@ -17,7 +17,7 @@ usethis ::use_github()
 
 
 #----------------------------------------------------#
-# Workshop 2: Data visulization in R ####
+# Workshop 1: Data visulization in R ####
 
 
 #----------------------------------------------------#
@@ -303,3 +303,131 @@ ggplot() +
 # Answer: two graphs will look identical because both use the same data, 
 # mappings, and layers resulting in a scatter plot with a smoothed line overlay.
 
+
+#----------------------------------------------------#
+## Section 1.5: Transformations and Stats ####
+
+# Description: In this section, the transformations are based on the diamonds 
+# dataset comes in ggplot2 and contains information about ~54,000 diamonds, 
+# including the price, carat, color, clarity, and cut of each diamond.
+
+## Load data
+data("diamonds")
+glimpse(diamonds)
+
+# basic bar chart 
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+
+# In this case, since we are working on bar charts, we need to set new values to
+# compute the statistics of our interest. To do this, we use "stat" function.
+
+ggplot(data = diamonds) + 
+  stat_count(mapping = aes(x = cut))
+
+# On the x-axis, the chart displays cut, a variable from the diamonds dataset. 
+# On the y-axis, it displays count, but count is not a variable in diamonds! 
+# Where does count come from? 
+# Many graphs, like scatterplots, plot the raw values of your dataset. 
+# Other graphs, like bar charts, calculate new values to plot.
+
+## Overriding defaults
+# You might want to override a default stat now that you understand what the 
+# defaults are. Change the default stat (which is a count, a summary) to 
+# identity (which is the raw value of a variable).
+
+demo <- tribble(
+  ~cut,         ~freq,
+  "Fair",       1610,
+  "Good",       4906,
+  "Very Good",  12082,
+  "Premium",    13791,
+  "Ideal",      21551
+)
+demo
+
+ggplot(data = demo) +
+  geom_bar(mapping = aes(x = cut, y = freq), stat = "identity")
+
+# You can also override a default mapping from transformed variables to 
+# aesthetics. For instance, you could display a bar chart of the proportion of
+# your total diamond dataset rather than a count.
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = stat(prop), group = 1))
+
+## Plotting statistical details
+
+# You might also want to show a little more about these transformations in your 
+# plot, which is good practice to be transparent about uncertainty or any other 
+# limitation of your data. 
+# You can do this using stat_summary().
+
+ggplot(data = diamonds) + 
+  stat_summary(
+    mapping = aes(x = cut, y = depth),
+    fun.min = min,
+    fun.max = max,
+    fun = median
+  )
+
+
+#----------------------------------------------------#
+## Section 1.6: Aesthetic adjustments ####
+
+# Another way to boost the way you can convey information with plots using 
+# ggplot2 is to use aesthetics like colour or fill to change aspects of colours.
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, colour = cut))
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = cut))
+
+# Here it is important to notice that the colour scheme used is not desirable 
+# for this dataset, as different colours does not make any sense to the results. 
+# It is a critical component that we should focus on, using of different colour 
+# schemes is does not add any value to the results. 
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) 
+
+ggplot(data = diamonds, mapping = aes(x = color, y = depth)) + 
+  geom_point(mapping = aes(color = cut)) 
+
+## Filling by a variable
+# Now try using these aesthetics to colour by another variable like clarity. 
+# Notice how the stacking is done automatically. This is done behind the scenes 
+# with a position argument.
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+
+## To alter transparency (alpha)
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) + 
+  geom_bar(alpha = 1/5, position = "identity")
+
+## To color the bar outlines with no fill color
+ggplot(data = diamonds, mapping = aes(x = cut, colour = clarity)) + 
+  geom_bar(fill = NA, position = "identity")
+
+## Position adjustments
+#  = "fill" works like stacking, but makes each set of stacked bars same height.
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "fill")
+
+## position = "dodge" 
+# Places overlapping objects directly beside one another.
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+
+## Jittering
+# position = "jitter" adds a small amount of random noise to each point to 
+# avoid overplotting when points overlap. This is useful for scatterplots but 
+# not barplots.
+ggplot(data = mpg) + 
+  #geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+  geom_point(mapping = aes(x = displ, y = hwy))
+#----------------------------------------------------#
+
+
+#----------------------------------------------------#
+# Assignment 1: Plot Deconstruction ####
