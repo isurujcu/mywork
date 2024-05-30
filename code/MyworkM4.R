@@ -10,7 +10,9 @@ usethis ::use_github()
 # Author: Isuru Wijesundara (14384313)
 #
 # Script Location:
-# C:/Users/isuru/Desktop/Isuru/0_JCU/Semester_3/MB5370/Module 4_Data science in R/My_analysis_M4/mywork/code/MyworkM4.R
+# C:/Users/isuru/Desktop/Isuru/0_JCU/Semester_3/MB5370/Module 4_Data science in 
+# R/My_analysis_M4/mywork/code/MyworkM4.R
+
 # Description: 
 # This script demonstrates data visualization and end to end data analysis in R.
 #----------------------------------------------------#
@@ -21,7 +23,7 @@ usethis ::use_github()
 
 
 #----------------------------------------------------#
-## Section 1: Basics of data visualization in R using an inbuilt dataset in R ####
+## Section 1: Data visualization in R using an inbuilt data frames in R ####
 
 
 # Description: 
@@ -32,7 +34,7 @@ usethis ::use_github()
 # Install and load tidyverse packages ####
 # First we need to install the relevant packages into the R work space. 
 
-install.packages("tidyverse") # Delete this line once installed
+# install.packages("tidyverse") # Delete this line once installed
 library("tidyverse")
 
 
@@ -431,3 +433,214 @@ ggplot(data = mpg) +
 
 #----------------------------------------------------#
 # Assignment 1: Plot Deconstruction ####
+
+library(readxl)
+Fishery <- read_excel("C:/Users/isuru/Desktop/Fishery.xlsx")
+View(Fishery)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# Display the data frame structure and summary 
+head(Fishery)
+glimpse(Fishery)
+summary(Fishery)
+
+# Transform the data from wide to long format
+fishery_long <- Fishery %>%
+  gather(key = "Year", value = "Production", -Fishery, -Source) %>%
+  mutate(Year = as.numeric(Year),
+         Production = Production / 1e6)  # Convert tons to million tons
+
+# Display the modified data
+head(fishery_long)
+
+# Filter the data for the years 1950 to 2022
+fishery_long <- fishery_long %>%
+  filter(Year >= 1950 & Year <= 2022)
+
+# Calculate the sum of production per year for each fishery type and source
+fishery_summary <- fishery_long %>%
+  group_by(Year, Fishery, Source) %>%
+  summarise(Total_Production = sum(Production, na.rm = TRUE), .groups = 'drop')
+
+# Create a time series point plot
+ggplot(data = fishery_summary) + 
+  geom_point(mapping = aes(x = Year, y = Total_Production, colour = Fishery)) +
+  facet_grid(Source ~ .) +
+  labs(title = "Fishery Production Over Years (1950-2022)",
+       x = "Year",
+       y = "Production (Million Tons)",
+       colour = "Fishery") +
+  theme_minimal()
+
+
+# Calculate the sum of production per year for each fishery type and source
+fishery_summary <- fishery_long %>%
+  group_by(Year, Fishery, Source) %>%
+  summarise(Total_Production = sum(Production, na.rm = TRUE), .groups = 'drop')
+
+# Calculate the total production per year for each source (sum of Capture and Aquaculture)
+total_summary <- fishery_long %>%
+  group_by(Year, Source) %>%
+  summarise(Total_Production = sum(Production, na.rm = TRUE), .groups = 'drop')
+
+# Create a time series point plot with trend lines
+ggplot(data = fishery_summary) + 
+  geom_point(mapping = aes(x = Year, y = Total_Production, colour = Fishery)) +
+  geom_line(data = total_summary, mapping = aes(x = Year, y = Total_Production, group = Source), colour = "black", linetype = "dashed") +
+  facet_grid(Source ~ .) +
+  labs(title = "Fishery Production Over Years (1950-2022)",
+       x = "Year",
+       y = "Production (Million Tons)",
+       colour = "Fishery") +
+  theme_minimal()
+
+
+# Create a time series line plot with trend lines
+ggplot(data = fishery_summary) + 
+  geom_line(mapping = aes(x = Year, y = Total_Production, colour = Fishery, group = Fishery)) +
+  geom_line(data = total_summary, mapping = aes(x = Year, y = Total_Production, group = Source), colour = "black", linetype = "dashed") +
+  facet_grid(Source ~ .) +
+  labs(title = "Fishery Production Over Years (1950-2022)",
+       x = "Year",
+       y = "Production (Million Tons)",
+       colour = "Fishery") +
+  theme_minimal()
+
+ggplot(data = fishery_summary) + 
+  geom_line(mapping = aes(x = Year, y = Total_Production, colour = Fishery, group = Fishery)) +
+  geom_line(data = total_summary, mapping = aes(x = Year, y = Total_Production, group = Source), colour = "black", linetype = "dashed") +
+  facet_grid(Source ~ .) +
+  labs(title = "Fishery Production Over Years (1950-2022)",
+       x = "Year",
+       y = "Production (Million Tons)",
+       colour = "Fishery") +
+  theme_minimal() +
+  theme(
+    panel.border = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black")
+  )
+
+# Plot deconstruction
+ggplot(data = fishery_summary) + 
+  geom_line(mapping = aes(x = Year, y = Total_Production, colour = Fishery, group = Fishery)) +
+  geom_line(data = total_summary, mapping = aes(x = Year, y = Total_Production, group = Source), colour = "black", linetype = "dashed") +
+  facet_grid(Source ~ .) +
+  labs(
+    title = "Fishery Production Over Years (1950-2022)",
+    x = "Year",
+    y = "Production (Million Tons)",
+    colour = "Fishery",
+    caption = "Data Source: [FishStatJ, 2023]. This plot shows the production trends of different fishery types (Capture Fisheries and Aquaculture) in Marine and Inland waters from 1950 to 2022. The dashed line represents the total production for each source."
+  ) +
+  theme_minimal() +
+  theme(
+    panel.border = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line.x = element_line(colour = "black"),  # Ensure x-axis line is shown
+    axis.line.y = element_line(colour = "black"),  # Ensure y-axis line is shown
+    axis.ticks.length = unit(0.15, "cm"),  # Shorten the length of tick marks
+    axis.ticks = element_line(colour = "black"),  # Color of tick marks
+    axis.ticks.x.bottom = element_line(colour = "black", size = 0.5, linetype = "solid"),  # Bottom x-axis tick marks
+    axis.ticks.y.left = element_line(colour = "black", size = 0.5, linetype = "solid"),  # Left y-axis tick marks
+    plot.title = element_text(size = 12),  # Reduce the font size of the title
+    plot.caption = element_text(size = 10, hjust = 0)  # Adjust caption font size and alignment
+  )
+
+# Define significant years and labels for the annotations
+significant_years <- data.frame(
+  Year = c(1965, 1980, 2000, 2010),
+  Source = c("Marine", "Marine", "Inland waters", "Inland waters"),
+  Label = c("Increase", "Decrease", "Increase", "Decrease")
+)
+
+ggplot(data = fishery_summary) + 
+  geom_line(mapping = aes(x = Year, y = Total_Production, colour = Fishery, group = Fishery)) +
+  geom_line(data = total_summary, mapping = aes(x = Year, y = Total_Production, group = Source), colour = "black", linetype = "dashed") +
+  geom_vline(data = significant_years, aes(xintercept = Year, color = NULL), linetype = "dotted", size = 0.5) +  # Add vertical lines
+  geom_text(data = significant_years, aes(x = Year, y = 0, label = Label, vjust = -1), angle = 90, size = 3, color = "red") +  # Add labels
+  facet_grid(Source ~ .) +
+  labs(
+    title = "Fishery Production Over Years (1950-2022)",
+    x = "Year",
+    y = "Production (Million Tons)",
+    colour = "Fishery",
+    caption = "Data Source: [Provide the data source here]. This plot shows the production trends of different fishery types (Capture and Aquaculture) in Marine and Inland waters from 1950 to 2022. The dashed line represents the total production for each source. Vertical dotted lines indicate significant changes in production rates."
+  ) +
+  theme_minimal() +
+  theme(
+    panel.border = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line.x = element_line(colour = "black"),  # Ensure x-axis line is shown
+    axis.line.y = element_line(colour = "black"),  # Ensure y-axis line is shown
+    axis.ticks.length = unit(0.15, "cm"),  # Shorten the length of tick marks
+    axis.ticks = element_line(colour = "black"),  # Color of tick marks
+    axis.ticks.x.bottom = element_line(colour = "black", size = 0.5, linetype = "solid"),  # Bottom x-axis tick marks
+    axis.ticks.y.left = element_line(colour = "black", size = 0.5, linetype = "solid"),  # Left y-axis tick marks
+    plot.title = element_text(size = 12),  # Reduce the font size of the title
+    plot.caption = element_text(size = 10, hjust = 0)  # Adjust caption font size and alignment
+  )
+
+
+# Define significant years of production escalations
+significant_increases <- data.frame(
+  Year = c(1991, 1989),  # years where significant increases occurred
+  Source = c("Marine", "Inland waters")  # Corresponding sources
+)
+
+# Add a column for shapes: 8 for increase (asterisk)
+significant_increases$Shape <- 8
+
+# Calculate the y positions for the symbols slightly above the highest production value to avoid overlapping
+max_production <- fishery_summary %>% group_by(Source) %>% summarise(Max_Production = max(Total_Production))
+significant_increases <- merge(significant_increases, max_production, by = "Source")
+significant_increases$Total_Production <- significant_increases$Max_Production * 1.6  # Place the symbols slightly above the maximum production value
+
+# Define breaks for x-axis to ensure 2022 is included
+x_breaks <- seq(1950, 2022, by = 10)
+
+ggplot(data = fishery_summary) + 
+  geom_line(mapping = aes(x = Year, y = Total_Production, colour = Fishery, group = Fishery), size = 1) +  # Increase line size
+  geom_line(data = total_summary, mapping = aes(x = Year, y = Total_Production, group = Source, linetype = "Total Production"), colour = "black", size = 0.8) +  # Increase line size and add to legend
+  geom_vline(data = significant_increases, aes(xintercept = Year, color = NULL), linetype = "dotted", size = 0.8) +  # Add vertical dotted lines
+  geom_point(data = significant_increases, aes(x = Year, y = Total_Production, shape = "Significant escalation", fill = "Significant escalation"), size = 3, color = "red") +  # Add red symbols for significant increases
+  scale_shape_manual(values = c("Significant escalation" = 8), name = NULL) +  # Map shape to asterisk and remove legend title
+  scale_fill_manual(values = c("Significant escalation" = "green"), name = NULL) +  # Color for significant escalation and remove legend title
+  facet_grid(Source ~ .) +
+  labs(
+    title = "Global Fishery Production Over Years (1950-2022)",
+    x = "Year",
+    y = "Production (Mn Tons - Live weight)",
+    caption = "Data Source: [FishStatJ, 2024]. \nVariation in the production trends of Capture fisheries and Aquaculture in Marine \nand Inland waters (sources) from 1950 to 2022. The dashed line represents the \ntotal production from both sources. Dotted lines with * indicate the year at which significant increases\nin total production rates were observed."
+  ) +
+  scale_x_continuous(breaks = seq(1950, 2022, by = 10)) +  # Set breaks for x-axis
+  theme_minimal() +
+  theme(
+    panel.border = element_blank(),
+    panel.grid.major.x = element_blank(),  # Remove major vertical gridlines
+    panel.grid.minor.x = element_blank(),  # Remove minor vertical gridlines
+    panel.grid.major.y = element_line(color = "gray", size = 0.1, linetype = "solid"),  # Make major gridlines light gray with low opacity
+    panel.grid.minor = element_blank(),
+    axis.line.x = element_line(colour = "black"),  # Ensure x-axis line is shown
+    axis.line.y = element_line(colour = "black"),  # Ensure y-axis line is shown
+    axis.ticks.length = unit(0.15, "cm"),  # Shorten the length of tick marks
+    axis.ticks = element_line(colour = "black"),  # Color of tick marks
+    axis.ticks.x.bottom = element_line(colour = "black", size = 0.5, linetype = "solid"),  # Bottom x-axis tick marks
+    axis.ticks.y.left = element_line(colour = "black", size = 0.5, linetype = "solid"),  # Left y-axis tick marks
+    plot.title = element_text(size = 12, hjust = 0.5),  # Center align and adjust title size
+    plot.caption = element_text(size = 8, hjust = 0.5),  # Adjust caption font size and center align
+    legend.position = "bottom",  # Move legend to the bottom
+    legend.box = "horizontal",  # Arrange legend items horizontally
+    legend.box.just = "center",  # Center justify the legend box
+    legend.title = element_blank(),  # Remove legend title
+    legend.text = element_text(size = 7),  # Reduce the font size of legends
+    axis.title.x = element_text(size = 8),  # Adjust x-axis title size
+    axis.title.y = element_text(size = 8)   # Adjust y-axis title size
+  ) + 
+  scale_color_discrete(name = "Fishery", labels = c("Capture Fisheries", "Aquaculture")) +  # Change legend labels for fishery types
+  scale_linetype_manual(values = c("Total Production" = "dashed"), name = "Legend")  # Add dashed line to legend
