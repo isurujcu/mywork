@@ -429,6 +429,7 @@ ggplot(data = mpg) +
   #geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
   geom_point(mapping = aes(x = displ, y = hwy))
 #----------------------------------------------------#
+#----------------------------------------------------#
 
 
 #----------------------------------------------------#
@@ -644,3 +645,130 @@ ggplot(data = fishery_summary) +
   ) + 
   scale_color_discrete(name = "Fishery", labels = c("Capture Fisheries", "Aquaculture")) +  # Change legend labels for fishery types
   scale_linetype_manual(values = c("Total Production" = "dashed"), name = "Legend")  # Add dashed line to legend
+#----------------------------------------------------#
+#----------------------------------------------------#
+
+
+#----------------------------------------------------#
+# Assignment 2: End-to-End data analysis ####
+
+# load required libraries 
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+QFISH <- read_excel("C:/Users/isuru/Desktop/QFISH.xlsx")
+View(QFISH)
+
+# Check the structure of the dataset and the first few rows
+str(QFISH)
+head(QFISH)
+
+# Convert the dataset to long format
+long_data <- QFISH %>%
+  pivot_longer(
+    cols = starts_with("20"), # Assumes year columns start with '20'
+    names_to = "Year",
+    values_to = "Catch"
+  )
+
+# Convert 'Year' column to numeric
+long_data$Year <- as.numeric(long_data$Year)
+
+# Check the transformed data
+head(long_data)
+
+# Create the line graph
+ggplot(long_data, aes(x = Year, y = Catch, color = Area)) +
+  geom_line() +
+  labs(title = "Shark Catch Over Years by Area",
+       x = "Year",
+       y = "Shark Catch",
+       color = "Area") +
+  theme_minimal()
+
+
+ggplot(long_data, aes(x = Year, y = Catch, color = Area)) +
+  geom_line() +
+  labs(title = "Shark Catch Over Years by Area",
+       x = "Year",
+       y = "Shark Catch",
+       color = "Area") +
+  theme_minimal() +
+  facet_wrap(~ Area)
+
+# Calculate positions for the labels
+label_positions <- long_data %>%
+  group_by(Area) %>%
+  summarize(x = min(Year), y = 250)  # Set y to 250 for consistent label positioning
+
+# Check the structure of the dataset and the first few rows
+str(QFISH)
+head(QFISH)
+
+# Convert the dataset to long format
+long_data <- QFISH %>%
+  pivot_longer(
+    cols = starts_with("20"), # Assumes year columns start with '20'
+    names_to = "Year",
+    values_to = "Catch"
+  )
+
+# Convert 'Year' column to numeric
+long_data$Year <- as.numeric(long_data$Year)
+
+# Check the transformed data
+head(long_data)
+
+# Calculate positions for the labels
+label_positions <- long_data %>%
+  group_by(Area) %>%
+  summarize(x = min(Year), y = 250)  # Set y to 250 for consistent label positioning
+
+# Create the line graph in facets 
+ggplot(long_data, aes(x = Year, y = Catch, color = Area)) +
+  geom_line() +
+  labs(title = "Shark Catch from the Queensland coast between 2002 and 2024",
+       x = "Year",
+       y = "Shark Catch (no. of individuals)",
+       caption = "Data source: [QFISH, 2024]. The variation in the shark catch between fishing areas from 2002 to 2024. \nBB: Bundaberg, BI: Bribie Island, CNS: Cairns, CC: Capricorn coast, Gladstone, GC: Gold Coast, MC: Mackay, \nNSI: Nth Stradbroke Is., RB: Rainbow Beach, SCN: Sunshine Coast North, SCS: Sunshine Coast South, SCSBI: \nSunshine Coast South & Bribie Island, TWV: Townsville") +  # Add caption here
+  theme_minimal() +
+  facet_wrap(~ Area) +
+  theme(
+    legend.position = "bottom",
+    legend.box = "horizontal",
+    legend.direction = "horizontal",
+    legend.box.just = "center",
+    legend.spacing.y = unit(0.1, 'cm'),  # Reduce vertical space between legend items
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8),  # Reduce size of x-axis labels
+    axis.text.y = element_text(size = 8),  # Reduce size of y-axis labels
+    axis.title.x = element_text(size = 8),  # Reduce size of x-axis title
+    axis.title.y = element_text(size = 8),  # Reduce size of y-axis title
+    strip.background = element_blank(),
+    strip.text.x = element_blank(),  # Remove facet titles on the x-axis
+    strip.text.y = element_blank(),  # Remove facet titles on the y-axis
+    panel.spacing.y = unit(0.5, "lines"),
+    plot.title = element_text(size = 12),
+    plot.caption = element_text(size = 6, hjust = 0.5, vjust = 0.5),
+    axis.line = element_line(color = "black")  # Add black axis lines
+  ) +
+  guides(color = guide_legend(nrow = 2, title = NULL)) +
+  scale_y_continuous(limits = c(0, 250)) +  # Set y-axis limits
+  scale_x_continuous(limits = c(2000, 2024))  # Set x-axis limits
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
